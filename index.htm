@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>The Roman Numeral Workshop</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            background: #eaf0f6;
+        }
+
+        .board-title {
+            font-family: "Times New Roman", Times, serif;
+            font-size: 32px;
+            font-weight: 700;
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .app {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .board-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .board {
+            display: flex;
+            flex-direction: column;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            background: #fff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .row {
+            display: flex;
+            border-bottom: 1px solid #eee;
+            height: 80px;
+        }
+
+        .header-row {
+            background: #f0f4f8;
+            border-bottom: 2px solid #ccc;
+            height: 40px;
+        }
+
+        .zone {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 5px;
+            border-right: 1px solid #eee;
+        }
+
+        .header-row .zone {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .zone:first-child {
+            flex: 0 0 80px;
+            background: #ffe6e6;
+        }
+
+        .zone:last-child {
+            flex: 0 0 200px;
+            border-right: none;
+        }
+
+        .zone-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .drop-area {
+            flex: 1;
+            width: 100%;
+            min-height: 40px;
+            border: 2px dashed #bbb;
+            border-radius: 6px;
+            background: #f9f9f9;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            justify-content: flex-start;
+            padding: 4px;
+            transition: border-color 0.2s ease;
+        }
+
+        .drop-area:hover {
+            border-color: #3498db;
+        }
+
+        .counter {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            margin: 2px;
+            cursor: grab;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .counter.blue {
+            background: linear-gradient(to bottom, #4fa3ff, #1e78d1);
+        }
+
+        .counter.red {
+            background: linear-gradient(to bottom, #ff5c5c, #d12c2c);
+        }
+
+        .counter.paired {
+            border: 2px dotted #000;
+        }
+
+        #counters {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        button {
+            padding: 8px 12px;
+            font-size: 14px;
+            border: none;
+            border-radius: 4px;
+            background: #3498db;
+            color: white;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        button:hover {
+            background: #2c80b4;
+        }
+
+        .roman-display,
+        .arabic-display {
+            font-size: 24px;
+            font-weight: bold;
+            margin-top: 12px;
+            color: #333;
+        }
+
+        .instructions {
+            font-size: 14px;
+            color: #555;
+            margin-top: 4px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1 class="board-title">The Roman Numeral Workshop</h1>
+
+    <div class="app">
+        <div class="board-container">
+            <div class="board" id="board"></div>
+            <div id="counters">
+                <div class="counter blue" draggable="true"></div>
+            </div>
+            <button id="randomNumber">Generate Random Number</button>
+        </div>
+
+        <div class="controls">
+            <button id="reset">Reset</button>
+            <button id="toggleNumeral">Hide Roman Numeral</button>
+            <button id="toggleArabic">Hide Arabic Number</button>
+            <div class="roman-display" id="romanDisplay">Roman Numeral: </div>
+            <div class="arabic-display" id="arabicDisplay">Arabic Number: 0</div>
+            <div class="instructions" id="instructions">
+                Drag counters into the board. Each counter adds to the total.<br />
+                Red counters show the numeral that is subtracted from the blue numeral.
+            </div>
+            <div class="instructions" id="romanExplanation">
+                <strong>How Roman Numerals Work</strong><br />
+                Roman numerals use letters instead of digits to show numbers.<br />
+                <ul>
+                    <li><strong>I</strong> means 1</li>
+                    <li><strong>V</strong> means 5</li>
+                    <li><strong>X</strong> means 10</li>
+                    <li><strong>L</strong> means 50</li>
+                    <li><strong>C</strong> means 100</li>
+                    <li><strong>D</strong> means 500</li>
+                    <li><strong>M</strong> means 1,000</li>
+                </ul>
+                If a smaller numeral comes <em>before</em> a bigger one, you <strong>subtract</strong> it.<br />
+                For example:
+                <ul>
+                    <li><strong>IV</strong> = 4 (one before five)</li>
+                    <li><strong>IX</strong> = 9 (one before ten)</li>
+                    <li><strong>XL</strong> = 40 (ten before fifty)</li>
+                </ul>
+                If a smaller numeral comes <em>after</em> a bigger one, you <strong>add</strong> it.<br />
+                For example:
+                <ul>
+                    <li><strong>VI</strong> = 6 (five plus one)</li>
+                    <li><strong>XI</strong> = 11 (ten plus one)</li>
+                    <li><strong>XV</strong> = 15 (ten plus five)</li>
+                </ul>
+                Try using the counters to build numbers and see how the Roman numerals are made!
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Canonical numerals
+        const numerals = [{
+                label: "M",
+                value: 1000
+            },
+            {
+                label: "CM",
+                value: 900
+            },
+            {
+                label: "D",
+                value: 500
+            },
+            {
+                label: "CD",
+                value: 400
+            },
+            {
+                label: "C",
+                value: 100
+            },
+            {
+                label: "XC",
+                value: 90
+            },
+            {
+                label: "L",
+                value: 50
+            },
+            {
+                label: "XL",
+                value: 40
+            },
+            {
+                label: "X",
+                value: 10
+            },
+            {
+                label: "IX",
+                value: 9
+            },
+            {
+                label: "V",
+                value: 5
+            },
+            {
+                label: "IV",
+                value: 4
+            },
+            {
+                label: "I",
+                value: 1
+            }
+        ];
+
+        const subtractionPairs = {
+            "IV": {
+                subtract: "I",
+                main: "V"
+            },
+            "IX": {
+                subtract: "I",
+                main: "X"
+            },
+            "XL": {
+                subtract: "X",
+                main: "L"
+            },
+            "XC": {
+                subtract: "X",
+                main: "C"
+            },
+            "CD": {
+                subtract: "C",
+                main: "D"
+            },
+            "CM": {
+                subtract: "C",
+                main: "M"
+            }
+        };
+
+        const rows = [{
+                main: "M",
+                subtract: "CM",
+                subtractDisplay: "C"
+            },
+            {
+                main: "D",
+                subtract: "CD",
+                subtractDisplay: "C"
+            },
+            {
+                main: "C",
+                subtract: "XC",
+                subtractDisplay: "X"
+            },
+            {
+                main: "L",
+                subtract: "XL",
+                subtractDisplay: "X"
+            },
+            {
+                main: "X",
+                subtract: "IX",
+                subtractDisplay: "I"
+            },
+            {
+                main: "V",
+                subtract: "IV",
+                subtractDisplay: "I"
+            },
+            {
+                main: "I"
+            }
+        ];
+
+        const board = document.getElementById("board");
+        const romanDisplay = document.getElementById("romanDisplay");
+        const arabicDisplay = document.getElementById("arabicDisplay");
+
+        // Build header row
+        const headerRow = document.createElement("div");
+        headerRow.className = "row header-row";
+        headerRow.innerHTML = `
+      <div class="zone">Subtraction</div>
+      <div class="zone">Main Numeral</div>
+    `;
+        board.appendChild(headerRow);
+
+        // Build each numeral row
+        rows.forEach(row => {
+            const rowDiv = document.createElement("div");
+            rowDiv.className = "row";
+
+            // Subtraction zone
+            const subDiv = document.createElement("div");
+            subDiv.className = "zone";
+            if (row.subtract) {
+                subDiv.dataset.label = row.subtract;
+                subDiv.innerHTML = `
+          <div class="zone-label">${row.subtractDisplay}</div>
+          <div class="drop-area"></div>
+        `;
+            } else {
+                subDiv.innerHTML = `<div class="zone-label"></div><div></div>`;
+            }
+            rowDiv.appendChild(subDiv);
+
+            // Main numeral zone
+            const mainDiv = document.createElement("div");
+            mainDiv.className = "zone";
+            mainDiv.dataset.label = row.main;
+            mainDiv.innerHTML = `
+        <div class="zone-label">${row.main}</div>
+        <div class="drop-area"></div>
+      `;
+            rowDiv.appendChild(mainDiv);
+
+            board.appendChild(rowDiv);
+        });
+
+        // Drag source logic
+        let dragged;
+        document.querySelector("#counters .counter").addEventListener("dragstart", e => {
+            dragged = e.target;
+        });
+
+        // Drop targets
+        document.querySelectorAll(".drop-area").forEach(area => {
+            area.addEventListener("dragover", e => e.preventDefault());
+            area.addEventListener("drop", e => {
+                e.preventDefault();
+                const label = area.parentElement.dataset.label;
+                const match = numerals.find(n => n.label === label);
+                if (!match) return;
+                setTotal((+board.dataset.total || 0) + match.value);
+            });
+        });
+
+        // Main render function
+        function setTotal(total) {
+            document.querySelectorAll(".drop-area").forEach(a => a.innerHTML = "");
+            board.dataset.total = total;
+            let remaining = total,
+                result = "";
+
+            numerals.forEach(n => {
+                while (remaining >= n.value) {
+                    remaining -= n.value;
+                    if (subtractionPairs[n.label]) {
+                        const parts = subtractionPairs[n.label];
+                        const subA = document.querySelector(`.zone[data-label="${n.label}"] .drop-area`);
+                        const mainA = document.querySelector(`.zone[data-label="${parts.main}"] .drop-area`);
+                        const rc = createCounter("red", "paired", `${n.label} subtractive pair`);
+                        const bc = createCounter("blue", "paired", `${n.label} subtractive pair`);
+                        subA.appendChild(rc);
+                        mainA.appendChild(bc);
+                    } else {
+                        const zoneA = document.querySelector(`.zone[data-label="${n.label}"] .drop-area`);
+                        zoneA.appendChild(createCounter("blue"));
+                    }
+                    result += n.label;
+                }
+            });
+
+            romanDisplay.textContent = "Roman Numeral: " + (result || "(empty)");
+            arabicDisplay.textContent = "Arabic Number: " + total;
+        }
+
+        // Helper to create a counter
+        function createCounter(color, extraClass = "", title = "") {
+            const c = document.createElement("div");
+            c.className = `counter ${color}` + (extraClass ? ` ${extraClass}` : "");
+            if (title) c.title = title;
+            return c;
+        }
+
+        // Control buttons
+        document.getElementById("reset").onclick = () => setTotal(0);
+        document.getElementById("toggleNumeral").onclick = () => {
+            romanDisplay.classList.toggle("hidden");
+            document.getElementById("toggleNumeral").textContent =
+                romanDisplay.classList.contains("hidden") ?
+                "Show Roman Numeral" :
+                "Hide Roman Numeral";
+        };
+        document.getElementById("toggleArabic").onclick = () => {
+            arabicDisplay.classList.toggle("hidden");
+            document.getElementById("toggleArabic").textContent =
+                arabicDisplay.classList.contains("hidden") ?
+                "Show Arabic Number" :
+                "Hide Arabic Number";
+        };
+        document.getElementById("randomNumber").onclick = () => {
+            setTotal(Math.floor(Math.random() * 3999) + 1);
+        };
+
+        // Initialize
+        setTotal(0);
+    </script>
+</body>
+
+</html>
