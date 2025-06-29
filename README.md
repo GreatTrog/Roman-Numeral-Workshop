@@ -21,3 +21,20 @@ You can use this tool online, or download it and open `index.html` locally in yo
 ### To run locally:
 
 1. Download or clone this repository:
+
+2. Open `index.html` in any modern browser.
+
+No build step or server required.
+
+## 🎓 Educational Use
+
+This project is designed for primary school (KS2) numeracy practice, but you can adapt it for any age group. It can be embedded in lessons or shared with pupils to use independently.
+
+## 📄 License
+
+MIT License — free for personal, educational, and commercial use.  
+See [LICENSE](LICENSE) for details.
+
+---
+
+**Enjoy exploring Roman numerals!**
